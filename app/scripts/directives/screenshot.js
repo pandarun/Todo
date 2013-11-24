@@ -4,8 +4,8 @@ angular.module('todoApp')
     .directive('screenshot', function () {
         return {
             template:
-                '<img id="screenshot" class="vga" src="">'+
-                '<canvas style="display:none;" class="vga"></canvas>',
+                '<img id="screenshot"  src="">'+
+                '<canvas style="display:none;"></canvas>',
             restrict: 'E',
             controller : function( $scope, $element, $attrs, $transclude) {
 
@@ -14,6 +14,7 @@ angular.module('todoApp')
                 var videoSelect = document.querySelector("select#videoSource");
                 var canvas = document.querySelector('canvas');
                 var ctx = canvas.getContext('2d');
+                var streaming = false;
                 var width = 320,
                     height = 0;
 
@@ -32,7 +33,10 @@ angular.module('todoApp')
                     }
                 }
 
-                videoElement.addEventListener('click', snapshot, false);
+                videoElement.addEventListener('click', function(ev){
+                    snapshot();
+                    ev.preventDefault();
+                }, false);
 
                 function gotSources(sourceInfos) {
                     for (var i = 0; i != sourceInfos.length; ++i) {
@@ -60,12 +64,6 @@ angular.module('todoApp')
                     window.stream = stream; // make stream available to console
                     videoElement.src = window.URL.createObjectURL(stream);
                     videoElement.play();
-
-                    height = videoElement.videoHeight / (videoElement.videoWidth/width);
-                    videoElement.setAttribute('width', width);
-                    videoElement.setAttribute('height', height);
-                    canvas.setAttribute('width', width);
-                    canvas.setAttribute('height', height);
                 }
 
                 function errorCallback(error){
@@ -81,15 +79,23 @@ angular.module('todoApp')
                     var videoSource = videoSelect.value;
                     var constraints = {
                         video: {
-                            mandatory : {
-                                maxHeight : 640,
-                                maxWidth : 480
-                            },
                             optional: [{sourceId: videoSource}]
                         }
                     };
                     navigator.getUserMedia(constraints, successCallback, errorCallback);
-                }
+                };
+
+                videoElement.addEventListener('canplay',function(ev){
+                    if(!streaming){
+                        height = videoElement.videoHeight / (videoElement.videoWidth/width);
+                        videoElement.setAttribute('width', width);
+                        videoElement.setAttribute('height', height);
+                        canvas.setAttribute('width', width);
+                        canvas.setAttribute('height', height);
+                    }
+                    streaming = true;
+
+                });
 
                 videoSelect.onchange = this.start;
 
@@ -97,9 +103,7 @@ angular.module('todoApp')
             },
             link: function postLink(scope, element, attrs,controller) {
 
-
                 controller.start();
-
 
             }
         };
