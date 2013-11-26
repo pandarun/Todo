@@ -1,4 +1,5 @@
-
+<div ng-file-added="$file.getExtension() == 'png'"
+     ng-files-submitted="$flow.upload()">
 
 <div class="row">
     <div class='select'>
@@ -7,18 +8,23 @@
 </div>
 
 <div class="row">
-    <div class="col-xs-6">
-        <video id="MyfrontCam" class="vga" muted autoplay></video>
+    <div class="col-xs-4">
+        <video id="MyFrontCam"  muted autoplay></video>
     </div>
 
-    <div class="col-xs-6">
-        <screenshot for="MyFrontCam" ng-model="data.doc"></screenshot>
+
+    <div class="col-xs-4">
+        <screenshot for="MyFrontCam"  ng-model="data.blob"></screenshot>
     </div>
+    <div class="col-xs-4">
+        <img id="persisted" src="">
+    </div>
+
+
+
 
 </div>
-<div ng-flow-init
-     ng-file-added="$file.getExtension() == 'png'"
-     ng-files-submitted="$flow.upload()">
+
 
 
 <h1>ng-flow basic example</h1>

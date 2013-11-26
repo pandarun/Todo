@@ -7,10 +7,14 @@ angular.module('todoApp')
                 '<img id="screenshot"  src="">'+
                 '<canvas style="display:none;"></canvas>',
             restrict: 'E',
-            controller : function( $scope, $element, $attrs, $transclude) {
+            scope:{
+                for:'@'
+            },
+            require: 'ngModel',
+            controller : function($scope) {
 
 
-                var videoElement = document.querySelector("video");
+                var videoElement = document.querySelector('#'+ $scope.for);
                 var videoSelect = document.querySelector("select#videoSource");
                 var canvas = document.querySelector('canvas');
                 var ctx = canvas.getContext('2d');
@@ -18,8 +22,23 @@ angular.module('todoApp')
                 var width = 320,
                     height = 0;
 
+
+
+
                 navigator.getUserMedia = navigator.getUserMedia ||
                     navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+
+                function convertDataUrlToBlob(dataURL){
+                    var data = atob( dataURL.substring( "data:image/png;base64,".length ) ),
+                        asArray = new Uint8Array(data.length);
+
+                    for( var i = 0, len = data.length; i < len; ++i ) {
+                        asArray[i] = data.charCodeAt(i);
+                    }
+
+                    return  new Blob( [ asArray.buffer ], {type: "image/png"} );
+                }
 
                 function snapshot() {
                     if (window.stream) {
@@ -29,7 +48,11 @@ angular.module('todoApp')
                         ctx.drawImage(videoElement, 0, 0,width,height);
                         // "image/webp" works in Chrome.
                         // Other browsers will fall back to image/png.
-                        document.querySelector('#screenshot').src = canvas.toDataURL('image/webp');
+                        var dataUrl = canvas.toDataURL('image/png');
+                        document.querySelector('#screenshot').src = dataUrl
+                        var blob = convertDataUrlToBlob(dataUrl);
+                        $scope.screenshot = blob;
+                        $scope.$apply();
                     }
                 }
 
@@ -99,11 +122,21 @@ angular.module('todoApp')
 
                 videoSelect.onchange = this.start;
 
+                $scope.start = this.start;
+
 
             },
-            link: function postLink(scope, element, attrs,controller) {
+            link: function postLink(scope, element, attrs,ngModelCtrl) {
 
-                controller.start();
+                scope.start();
+
+                scope.$watch('screenshot',function(item){
+                    if(item){
+                        console.log(item);
+                        ngModelCtrl.$setViewValue(item);
+                    }
+                });
+
 
             }
         };

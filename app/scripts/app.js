@@ -10,7 +10,7 @@ angular.module('todoApp', [
     .config(function ($routeProvider, flowFactoryProvider) {
 
         flowFactoryProvider.defaults = {
-            target: 'upload.php',
+            target: 'upload',
             permanentErrors: [404, 500, 501],
             maxChunkRetries: 1,
             chunkRetryInterval: 5000,
